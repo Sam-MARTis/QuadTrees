@@ -69,3 +69,18 @@ class QuadTree{
     }
 
 }
+
+
+
+//Testing
+let myTree: QuadTree = new QuadTree(0, 0, 500, 500)
+console.log(myTree.addPoint(new Point(100, 100)))
+console.log(myTree.addPoint(new Point(100, 101)))
+console.log(myTree.addPoint(new Point(100, 102)))
+console.log(myTree.addPoint(new Point(100, 303)))
+console.log(myTree)
+console.log(myTree.addPoint(new Point(100, 300)))
+
+console.log(myTree)
+
+
