@@ -150,6 +150,7 @@ const drawTree = (tree: QuadTree): void => {
 };
 
 addEventListener("mousemove", (event) => {
+  console.log(event);
   const x = event.clientX;
   const y = event.clientY;
   const point = new Point(x, y);

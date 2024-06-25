@@ -103,6 +103,7 @@ var drawTree = function (tree) {
     }
 };
 addEventListener("mousemove", function (event) {
+    console.log(event);
     var x = event.clientX;
     var y = event.clientY;
     var point = new Point(x, y);
