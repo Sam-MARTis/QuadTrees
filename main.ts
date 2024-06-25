@@ -1,86 +1,166 @@
-class Point{
-    x: number
-    y: number
-    constructor(x:number, y:number){
-        this.x = x
-        this.y = y
-    }
+class Point {
+  x: number;
+  y: number;
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
 }
 
-class QuadTree{
-    x: number
-    y: number
-    width: number
-    height: number
-    points: Point[]
-    capacity: number
-    divided: boolean
-    subTrees: QuadTree[]
-    constructor(x: number, y:number, width:number, height:number){
-        this.x = x
-        this.y = y
-        this.width = width
-        this.height = height
-        this.points = []
-        this.capacity = 4
-        this.divided = false
-        this.subTrees=[]
-        
-    }
+class QuadTree {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  points: Point[];
+  capacity: number;
+  divided: boolean;
+  subTrees: QuadTree[];
+  pointsCount: number;
+  constructor(x: number, y: number, width: number, height: number) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.pointsCount = 0;
+    this.points = [];
+    this.capacity = 4;
+    this.divided = false;
+    this.subTrees = [];
+  }
 
-    checkValidPoint = (point: Point): boolean=> {
-        return (point.x>this.x) && (point.x<=(this.x+this.width)) && (point.y>this.y) && (point.y<=(this.y+this.height))
-    }
-    subDivide = (): void => {
-        this.divided = true
-        this.subTrees.push(new QuadTree(this.x, this.y, this.width/2, this.height/2))
-        this.subTrees.push(new QuadTree(this.x+this.width/2, this.y, this.width/2, this.height/2))
-        this.subTrees.push(new QuadTree(this.x+this.width/2, this.y+this.height/2, this.width/2, this.height/2))
-        this.subTrees.push(new QuadTree(this.x, this.y+this.height/2, this.width/2, this.height/2))
-        this.subTrees.forEach(tree => {
-            for(let i = 0; i<4; i++){
-                tree.addPoint(this.points[i])
-            }
-        });
-    }
+  checkValidPoint = (point: Point): boolean => {
+    return (
+      point.x > this.x &&
+      point.x <= this.x + this.width &&
+      point.y > this.y &&
+      point.y <= this.y + this.height
+    );
+  };
+  subDivide = (): void => {
+    // console.log("Subdivide function called")
+    this.divided = true;
+    this.subTrees.push(
+      new QuadTree(this.x, this.y, this.width / 2, this.height / 2)
+    );
+    this.subTrees.push(
+      new QuadTree(
+        this.x + this.width / 2,
+        this.y,
+        this.width / 2,
+        this.height / 2
+      )
+    );
+    this.subTrees.push(
+      new QuadTree(
+        this.x + this.width / 2,
+        this.y + this.height / 2,
+        this.width / 2,
+        this.height / 2
+      )
+    );
+    this.subTrees.push(
+      new QuadTree(
+        this.x,
+        this.y + this.height / 2,
+        this.width / 2,
+        this.height / 2
+      )
+    );
+    this.points.forEach((point) => {
+      this.subTrees.forEach((tree) => {
+        tree.addPoint(point);
+      });
+    });
+    this.points = [];
+  };
 
-    addPoint =(point: Point): boolean => {
-        if(this.checkValidPoint(point) === false){
-            return false
+  addPoint = (point: Point): boolean => {
+    // console.log("Addpoint function called")
+    if (this.checkValidPoint(point) == false) {
+      return false;
+    }
+    this.pointsCount += 1;
+
+    if (this.points.length < this.capacity && !this.divided) {
+      console.log("Pushing point without subdividing");
+      this.points.push(point);
+
+      return true;
+    } else {
+      if (!this.divided) {
+        console.log("Subdividing");
+        this.points.push(point);
+        this.subDivide();
+        // console.log("Subdividing")
+        return true;
+      } else {
+        for (let i = 0; i < this.subTrees.length; i++) {
+          if (this.subTrees[i].addPoint(point)) {
+            return true;
+            // break
+          }
         }
-        if(this.points.length<4){
-            this.points.push(point)
-            return true
-        }
-        else{
-            if(!this.divided){
-                this.subDivide()
-                return true
-            }
-            for(let i=0; i<4; i++){
-                if(this.subTrees[i].addPoint(point)){
-                    return true
-                }
-            }
-            throw("Point not in sub trees")
-            return false
-        }
-
+      }
+      throw new Error("Point not in sub trees");
+      return false;
     }
-
+  };
 }
-
-
 
 //Testing
-let myTree: QuadTree = new QuadTree(0, 0, 500, 500)
-console.log(myTree.addPoint(new Point(100, 100)))
-console.log(myTree.addPoint(new Point(100, 101)))
-console.log(myTree.addPoint(new Point(100, 102)))
-console.log(myTree.addPoint(new Point(100, 303)))
-console.log(myTree)
-console.log(myTree.addPoint(new Point(100, 300)))
 
-console.log(myTree)
+// console.log(myTree)
+// console.log(myTree.addPoint(new Point(100, 100)))
+// console.log(myTree)
+// console.log(myTree.addPoint(new Point(100, 101)))
+// console.log(myTree.addPoint(new Point(100, 102)))
+// console.log(myTree)
+// console.log(myTree.addPoint(new Point(100, 303)))
+// console.log(myTree)
+// setTimeout(()=>{console.log(myTree.addPoint(new Point(100, 300)))}, 100)
+// console.log(myTree.addPoint(new Point(100, 300)))
 
+// console.log(myTree)
 
+let canvas: any = document.getElementById("QuadTreesCanvas");
+let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
+canvas.width = window.innerWidth * devicePixelRatio;
+canvas.height = window.innerHeight * devicePixelRatio;
+canvas.style.width = window.innerWidth + "px";
+canvas.style.height = window.innerHeight + "px";
+const myTree: QuadTree = new QuadTree(
+  0,
+  0,
+  Math.max(canvas.width, canvas.height),
+  Math.max(canvas.width, canvas.height)
+);
+const points: Point[] = [];
+const drawTree = (tree: QuadTree): void => {
+  ctx.beginPath();
+  ctx.strokeStyle = "white";
+  ctx.rect(tree.x, tree.y, tree.width, tree.height);
+  ctx.stroke();
+
+  if (tree.divided) {
+    tree.subTrees.forEach((subTree) => {
+      drawTree(subTree);
+    });
+  }
+};
+
+addEventListener("mousemove", (event) => {
+  const x = event.clientX;
+  const y = event.clientY;
+  const point = new Point(x, y);
+  points.push(point);
+  myTree.addPoint(point);
+
+  drawTree(myTree);
+  points.forEach((pointCurrent) => {
+    ctx.beginPath();
+    ctx.arc(pointCurrent.x, pointCurrent.y, 1, 0, 3.1416);
+    ctx.fillStyle = "white";
+    ctx.fill();
+  });
+});
