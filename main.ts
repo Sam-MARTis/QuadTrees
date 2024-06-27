@@ -134,7 +134,26 @@ class QuadTree {
     return ((x2>=r.x1) && (x1 <= r.x2) && (y1 <= r.y2) && (y2 >= r.y1));
   }
 
- 
+  queryTree = (rangeVal: Rect): Point[]=> {
+    if(!this.doesIntersect(rangeVal)){
+      return []
+    }
+    let pointsToReturn: Point[] = []
+    if(!this.divided){
+      
+      this.points.forEach((point)=> {
+        if(rangeVal.doesContain(point.x, point.y)){
+          pointsToReturn.push(point);
+        }
+      })
+      return pointsToReturn;
+    }
+    this.subTrees.forEach((subtree) =>{
+      pointsToReturn.push(...subtree.queryTree(rangeVal));
+    })
+    
+    return pointsToReturn
+  }
 
 
 }
