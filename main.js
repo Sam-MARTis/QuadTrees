@@ -16,7 +16,7 @@ class Rect {
         this.y1 = y1;
         this.y2 = y2;
         if (this.x2 < this.x1 || this.y2 < this.y1) {
-            console.error("Wrongg recangle dimensions given");
+            console.error("Wrong rectangle dimensions given");
             return;
         }
     }
@@ -30,7 +30,6 @@ class QuadTree {
                 point.y <= this.y + this.height);
         };
         this.subDivide = () => {
-            // console.log("Subdivide function called")
             this.divided = true;
             this.subTrees.push(new QuadTree(this.x, this.y, this.width / 2, this.height / 2));
             this.subTrees.push(new QuadTree(this.x + this.width / 2, this.y, this.width / 2, this.height / 2));
@@ -44,34 +43,28 @@ class QuadTree {
             this.points = [];
         };
         this.addPoint = (point) => {
-            // console.log("Addpoint function called")
             if (this.checkValidPoint(point) == false) {
                 return false;
             }
             this.pointsCount += 1;
             if (this.points.length < this.capacity && !this.divided) {
-                console.log("Pushing point without subdividing");
                 this.points.push(point);
                 return true;
             }
             else {
                 if (!this.divided) {
-                    console.log("Subdividing");
                     this.points.push(point);
                     this.subDivide();
-                    // console.log("Subdividing")
                     return true;
                 }
                 else {
                     for (let i = 0; i < this.subTrees.length; i++) {
                         if (this.subTrees[i].addPoint(point)) {
                             return true;
-                            // break
                         }
                     }
                 }
                 throw new Error("Point not in sub trees");
-                return false;
             }
         };
         this.doesIntersect = (r) => {
@@ -110,18 +103,6 @@ class QuadTree {
         this.subTrees = [];
     }
 }
-//Testing
-// console.log(myTree)
-// console.log(myTree.addPoint(new Point(100, 100)))
-// console.log(myTree)
-// console.log(myTree.addPoint(new Point(100, 101)))
-// console.log(myTree.addPoint(new Point(100, 102)))
-// console.log(myTree)
-// console.log(myTree.addPoint(new Point(100, 303)))
-// console.log(myTree)
-// setTimeout(()=>{console.log(myTree.addPoint(new Point(100, 300)))}, 100)
-// console.log(myTree.addPoint(new Point(100, 300)))
-// console.log(myTree)
 let canvas = document.getElementById("QuadTreesCanvas");
 let ctx = canvas.getContext("2d");
 let highlightRect = [0, 0, 0, 0];
@@ -163,7 +144,6 @@ const renderStuff = () => {
 const startTime = performance.now();
 addEventListener("mousemove", (event) => {
     if ((performance.now() - startTime) / 1000 < 4) {
-        console.log(event);
         const x = event.clientX;
         const y = event.clientY;
         const point = new Point(x, y);
