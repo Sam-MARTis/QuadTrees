@@ -1,3 +1,5 @@
+const LEAF_NODE_MAX_CAPACITY = 4;
+
 class Point {
   x: number;
   y: number;
@@ -37,14 +39,20 @@ class QuadTree {
   divided: boolean;
   subTrees: QuadTree[];
   pointsCount: number;
-  constructor(x: number, y: number, width: number, height: number) {
+  constructor(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    capacity: number
+  ) {
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
     this.pointsCount = 0;
     this.points = [];
-    this.capacity = 4;
+    this.capacity = capacity;
     this.divided = false;
     this.subTrees = [];
   }
@@ -60,14 +68,21 @@ class QuadTree {
   subDivide = (): void => {
     this.divided = true;
     this.subTrees.push(
-      new QuadTree(this.x, this.y, this.width / 2, this.height / 2)
+      new QuadTree(
+        this.x,
+        this.y,
+        this.width / 2,
+        this.height / 2,
+        this.capacity
+      )
     );
     this.subTrees.push(
       new QuadTree(
         this.x + this.width / 2,
         this.y,
         this.width / 2,
-        this.height / 2
+        this.height / 2,
+        this.capacity
       )
     );
     this.subTrees.push(
@@ -75,7 +90,8 @@ class QuadTree {
         this.x + this.width / 2,
         this.y + this.height / 2,
         this.width / 2,
-        this.height / 2
+        this.height / 2,
+        this.capacity
       )
     );
     this.subTrees.push(
@@ -83,7 +99,8 @@ class QuadTree {
         this.x,
         this.y + this.height / 2,
         this.width / 2,
-        this.height / 2
+        this.height / 2,
+        this.capacity
       )
     );
     this.points.forEach((point) => {
@@ -149,7 +166,9 @@ class QuadTree {
   };
 }
 
-let canvas: HTMLCanvasElement = document.getElementById("QuadTreesCanvas") as HTMLCanvasElement;
+let canvas: HTMLCanvasElement = document.getElementById(
+  "QuadTreesCanvas"
+) as HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
 let highlightRect: [number, number, number, number] = [0, 0, 0, 0];
 let pointsToHighlight: Point[] = [];
@@ -167,7 +186,8 @@ const myTree: QuadTree = new QuadTree(
   0,
   0,
   Math.max(canvas.width, canvas.height),
-  Math.max(canvas.width, canvas.height)
+  Math.max(canvas.width, canvas.height),
+  LEAF_NODE_MAX_CAPACITY
 );
 const points: Point[] = [];
 
@@ -185,7 +205,7 @@ const drawTree = (tree: QuadTree): void => {
 };
 
 const renderStuff = () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before each render
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawTree(myTree);
   ctx.beginPath();
   ctx.strokeStyle = "green";
@@ -198,7 +218,7 @@ const renderStuff = () => {
     ctx.strokeStyle = pointCurrent.fillStyle;
     ctx.fillStyle = pointCurrent.fillStyle;
     ctx.beginPath();
-    ctx.arc(pointCurrent.x, pointCurrent.y, 1, 0, 3.1416);
+    ctx.arc(pointCurrent.x, pointCurrent.y, 2, 0, 2 * 3.1416);
     ctx.fill();
   });
 };
@@ -235,7 +255,9 @@ canvas.addEventListener("click", (event) => {
   const rectY = y - height / 2;
 
   highlightRect = [rectX, rectY, width, height];
-  pointsToHighlight = myTree.queryTree(new Rect(rectX, rectX + width, rectY, rectY + height));
+  pointsToHighlight = myTree.queryTree(
+    new Rect(rectX, rectX + width, rectY, rectY + height)
+  );
   pointsToHighlight.forEach((point) => {
     point.fillStyle = "green";
   });
@@ -243,7 +265,6 @@ canvas.addEventListener("click", (event) => {
   renderStuff();
 });
 
-// Ensure canvas resizes with the window
 window.addEventListener("resize", () => {
   resizeCanvas();
   renderStuff();

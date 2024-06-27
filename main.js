@@ -1,4 +1,5 @@
 "use strict";
+const LEAF_NODE_MAX_CAPACITY = 4;
 class Point {
     constructor(x, y) {
         this.x = x;
@@ -22,7 +23,7 @@ class Rect {
     }
 }
 class QuadTree {
-    constructor(x, y, width, height) {
+    constructor(x, y, width, height, capacity) {
         this.checkValidPoint = (point) => {
             return (point.x > this.x &&
                 point.x <= this.x + this.width &&
@@ -31,10 +32,10 @@ class QuadTree {
         };
         this.subDivide = () => {
             this.divided = true;
-            this.subTrees.push(new QuadTree(this.x, this.y, this.width / 2, this.height / 2));
-            this.subTrees.push(new QuadTree(this.x + this.width / 2, this.y, this.width / 2, this.height / 2));
-            this.subTrees.push(new QuadTree(this.x + this.width / 2, this.y + this.height / 2, this.width / 2, this.height / 2));
-            this.subTrees.push(new QuadTree(this.x, this.y + this.height / 2, this.width / 2, this.height / 2));
+            this.subTrees.push(new QuadTree(this.x, this.y, this.width / 2, this.height / 2, this.capacity));
+            this.subTrees.push(new QuadTree(this.x + this.width / 2, this.y, this.width / 2, this.height / 2, this.capacity));
+            this.subTrees.push(new QuadTree(this.x + this.width / 2, this.y + this.height / 2, this.width / 2, this.height / 2, this.capacity));
+            this.subTrees.push(new QuadTree(this.x, this.y + this.height / 2, this.width / 2, this.height / 2, this.capacity));
             this.points.forEach((point) => {
                 this.subTrees.forEach((tree) => {
                     tree.addPoint(point);
@@ -98,7 +99,7 @@ class QuadTree {
         this.height = height;
         this.pointsCount = 0;
         this.points = [];
-        this.capacity = 4;
+        this.capacity = capacity;
         this.divided = false;
         this.subTrees = [];
     }
@@ -114,7 +115,7 @@ const resizeCanvas = () => {
     canvas.style.height = window.innerHeight + "px";
 };
 resizeCanvas();
-const myTree = new QuadTree(0, 0, Math.max(canvas.width, canvas.height), Math.max(canvas.width, canvas.height));
+const myTree = new QuadTree(0, 0, Math.max(canvas.width, canvas.height), Math.max(canvas.width, canvas.height), LEAF_NODE_MAX_CAPACITY);
 const points = [];
 const drawTree = (tree) => {
     ctx.beginPath();
@@ -128,7 +129,7 @@ const drawTree = (tree) => {
     }
 };
 const renderStuff = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before each render
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawTree(myTree);
     ctx.beginPath();
     ctx.strokeStyle = "green";
@@ -141,7 +142,7 @@ const renderStuff = () => {
         ctx.strokeStyle = pointCurrent.fillStyle;
         ctx.fillStyle = pointCurrent.fillStyle;
         ctx.beginPath();
-        ctx.arc(pointCurrent.x, pointCurrent.y, 1, 0, 3.1416);
+        ctx.arc(pointCurrent.x, pointCurrent.y, 2, 0, 2 * 3.1416);
         ctx.fill();
     });
 };
@@ -178,7 +179,6 @@ canvas.addEventListener("click", (event) => {
     });
     renderStuff();
 });
-// Ensure canvas resizes with the window
 window.addEventListener("resize", () => {
     resizeCanvas();
     renderStuff();
