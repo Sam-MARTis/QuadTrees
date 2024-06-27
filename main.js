@@ -3,6 +3,7 @@ class Point {
     constructor(x, y) {
         this.x = x;
         this.y = y;
+        this.fillStyle = "white";
     }
 }
 class Rect {
@@ -123,6 +124,8 @@ class QuadTree {
 // console.log(myTree)
 let canvas = document.getElementById("QuadTreesCanvas");
 let ctx = canvas.getContext("2d");
+let highlightRect = [0, 0, 0, 0];
+let pointsToHighlight = [];
 canvas.width = window.innerWidth * devicePixelRatio;
 canvas.height = window.innerHeight * devicePixelRatio;
 canvas.style.width = window.innerWidth + "px";
@@ -140,18 +143,41 @@ const drawTree = (tree) => {
         });
     }
 };
+const startTime = performance.now();
 addEventListener("mousemove", (event) => {
-    console.log(event);
-    const x = event.clientX;
-    const y = event.clientY;
-    const point = new Point(x, y);
-    points.push(point);
-    myTree.addPoint(point);
+    if ((performance.now() - startTime) / 1000 < 4) {
+        console.log(event);
+        const x = event.clientX;
+        const y = event.clientY;
+        const point = new Point(x, y);
+        points.push(point);
+        myTree.addPoint(point);
+    }
     drawTree(myTree);
+    ctx.beginPath();
+    ctx.strokeStyle = "green";
+    ctx.lineWidth = 1;
+    ctx.rect(...highlightRect);
+    ctx.stroke();
+    ctx.closePath();
+    ctx.lineWidth = 0.1;
     points.forEach((pointCurrent) => {
+        ctx.strokeStyle = pointCurrent.fillStyle;
+        ctx.fillStyle = pointCurrent.fillStyle;
         ctx.beginPath();
         ctx.arc(pointCurrent.x, pointCurrent.y, 1, 0, 3.1416);
-        ctx.fillStyle = "white";
         ctx.fill();
+    });
+});
+addEventListener("click", (event) => {
+    pointsToHighlight = [];
+    const width = 200;
+    const height = 100;
+    const x = event.clientX - width / 2;
+    const y = event.clientY - height / 2;
+    highlightRect = [x, y, width, height];
+    pointsToHighlight = myTree.queryTree(new Rect(x, x + width, y, y + height));
+    pointsToHighlight.forEach((point) => {
+        point.fillStyle = "green";
     });
 });
