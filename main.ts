@@ -10,25 +10,6 @@ class Point {
     this.fillStyle = "white";
   }
 }
-class Rect {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  constructor(x1: number, x2: number, y1: number, y2: number) {
-    this.x1 = x1;
-    this.x2 = x2;
-    this.y1 = y1;
-    this.y2 = y2;
-    if (this.x2 < this.x1 || this.y2 < this.y1) {
-      console.error("Wrong rectangle dimensions given");
-      return;
-    }
-  }
-  doesContain = (x: number, y: number): boolean => {
-    return ((x > this.x1) && (x < this.x2) && (y > this.y1) && (y < this.y2));
-  };
-}
 class QuadTree {
   x: number;
   y: number;
@@ -137,16 +118,21 @@ class QuadTree {
     }
   };
 
-  doesIntersect = (rx1: number, ry1: number, rx2: number, ry2: number): boolean => {
+  doesIntersect = (
+    rx1: number,
+    ry1: number,
+    rx2: number,
+    ry2: number
+  ): boolean => {
     let x1 = this.x;
     let x2 = this.x + this.width;
     let y1 = this.y;
     let y2 = this.y + this.height;
-    return (x2 >= rx1) && (x1 <= rx2) && (y1 <= ry2) && (y2 >= ry1);
+    return x2 >= rx1 && x1 <= rx2 && y1 <= ry2 && y2 >= ry1;
   };
 
   queryTree = (rx1: number, ry1: number, rx2: number, ry2: number): Point[] => {
-    if (!(this.doesIntersect(rx1, ry1, rx2, ry2))) {
+    if (!this.doesIntersect(rx1, ry1, rx2, ry2)) {
       return [];
     }
     let pointsToReturn: Point[] = [];
@@ -256,7 +242,10 @@ canvas.addEventListener("click", (event) => {
 
   highlightRect = [rectX, rectY, width, height];
   pointsToHighlight = myTree.queryTree(
-    rectX, rectY, rectX + width, rectY + height
+    rectX,
+    rectY,
+    rectX + width,
+    rectY + height
   );
   pointsToHighlight.forEach((point) => {
     point.fillStyle = "green";

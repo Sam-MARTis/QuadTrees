@@ -7,21 +7,6 @@ class Point {
         this.fillStyle = "white";
     }
 }
-class Rect {
-    constructor(x1, x2, y1, y2) {
-        this.doesContain = (x, y) => {
-            return ((x > this.x1) && (x < this.x2) && (y > this.y1) && (y < this.y2));
-        };
-        this.x1 = x1;
-        this.x2 = x2;
-        this.y1 = y1;
-        this.y2 = y2;
-        if (this.x2 < this.x1 || this.y2 < this.y1) {
-            console.error("Wrong rectangle dimensions given");
-            return;
-        }
-    }
-}
 class QuadTree {
     constructor(x, y, width, height, capacity) {
         this.checkValidPoint = (point) => {
@@ -73,10 +58,10 @@ class QuadTree {
             let x2 = this.x + this.width;
             let y1 = this.y;
             let y2 = this.y + this.height;
-            return (x2 >= rx1) && (x1 <= rx2) && (y1 <= ry2) && (y2 >= ry1);
+            return x2 >= rx1 && x1 <= rx2 && y1 <= ry2 && y2 >= ry1;
         };
         this.queryTree = (rx1, ry1, rx2, ry2) => {
-            if (!(this.doesIntersect(rx1, ry1, rx2, ry2))) {
+            if (!this.doesIntersect(rx1, ry1, rx2, ry2)) {
                 return [];
             }
             let pointsToReturn = [];
