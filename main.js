@@ -10,7 +10,7 @@ class Point {
 class Rect {
     constructor(x1, x2, y1, y2) {
         this.doesContain = (x, y) => {
-            return x > this.x1 && x < this.x2 && y > this.y1 && y < this.y2;
+            return ((x > this.x1) && (x < this.x2) && (y > this.y1) && (y < this.y2));
         };
         this.x1 = x1;
         this.x2 = x2;
@@ -68,28 +68,28 @@ class QuadTree {
                 throw new Error("Point not in sub trees");
             }
         };
-        this.doesIntersect = (r) => {
+        this.doesIntersect = (rx1, ry1, rx2, ry2) => {
             let x1 = this.x;
             let x2 = this.x + this.width;
             let y1 = this.y;
             let y2 = this.y + this.height;
-            return x2 >= r.x1 && x1 <= r.x2 && y1 <= r.y2 && y2 >= r.y1;
+            return (x2 >= rx1) && (x1 <= rx2) && (y1 <= ry2) && (y2 >= ry1);
         };
-        this.queryTree = (rangeVal) => {
-            if (!this.doesIntersect(rangeVal)) {
+        this.queryTree = (rx1, ry1, rx2, ry2) => {
+            if (!(this.doesIntersect(rx1, ry1, rx2, ry2))) {
                 return [];
             }
             let pointsToReturn = [];
             if (!this.divided) {
                 this.points.forEach((point) => {
-                    if (rangeVal.doesContain(point.x, point.y)) {
+                    if (point.x > rx1 && point.x < rx2 && point.y > ry1 && point.y < ry2) {
                         pointsToReturn.push(point);
                     }
                 });
                 return pointsToReturn;
             }
             this.subTrees.forEach((subtree) => {
-                pointsToReturn.push(...subtree.queryTree(rangeVal));
+                pointsToReturn.push(...subtree.queryTree(rx1, ry1, rx2, ry2));
             });
             return pointsToReturn;
         };
@@ -173,7 +173,7 @@ canvas.addEventListener("click", (event) => {
     const rectX = x - width / 2;
     const rectY = y - height / 2;
     highlightRect = [rectX, rectY, width, height];
-    pointsToHighlight = myTree.queryTree(new Rect(rectX, rectX + width, rectY, rectY + height));
+    pointsToHighlight = myTree.queryTree(rectX, rectY, rectX + width, rectY + height);
     pointsToHighlight.forEach((point) => {
         point.fillStyle = "green";
     });

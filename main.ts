@@ -26,7 +26,7 @@ class Rect {
     }
   }
   doesContain = (x: number, y: number): boolean => {
-    return x > this.x1 && x < this.x2 && y > this.y1 && y < this.y2;
+    return ((x > this.x1) && (x < this.x2) && (y > this.y1) && (y < this.y2));
   };
 }
 class QuadTree {
@@ -137,29 +137,29 @@ class QuadTree {
     }
   };
 
-  doesIntersect = (r: Rect): boolean => {
+  doesIntersect = (rx1: number, ry1: number, rx2: number, ry2: number): boolean => {
     let x1 = this.x;
     let x2 = this.x + this.width;
     let y1 = this.y;
     let y2 = this.y + this.height;
-    return x2 >= r.x1 && x1 <= r.x2 && y1 <= r.y2 && y2 >= r.y1;
+    return (x2 >= rx1) && (x1 <= rx2) && (y1 <= ry2) && (y2 >= ry1);
   };
 
-  queryTree = (rangeVal: Rect): Point[] => {
-    if (!this.doesIntersect(rangeVal)) {
+  queryTree = (rx1: number, ry1: number, rx2: number, ry2: number): Point[] => {
+    if (!(this.doesIntersect(rx1, ry1, rx2, ry2))) {
       return [];
     }
     let pointsToReturn: Point[] = [];
     if (!this.divided) {
       this.points.forEach((point) => {
-        if (rangeVal.doesContain(point.x, point.y)) {
+        if (point.x > rx1 && point.x < rx2 && point.y > ry1 && point.y < ry2) {
           pointsToReturn.push(point);
         }
       });
       return pointsToReturn;
     }
     this.subTrees.forEach((subtree) => {
-      pointsToReturn.push(...subtree.queryTree(rangeVal));
+      pointsToReturn.push(...subtree.queryTree(rx1, ry1, rx2, ry2));
     });
 
     return pointsToReturn;
@@ -256,7 +256,7 @@ canvas.addEventListener("click", (event) => {
 
   highlightRect = [rectX, rectY, width, height];
   pointsToHighlight = myTree.queryTree(
-    new Rect(rectX, rectX + width, rectY, rectY + height)
+    rectX, rectY, rectX + width, rectY + height
   );
   pointsToHighlight.forEach((point) => {
     point.fillStyle = "green";
