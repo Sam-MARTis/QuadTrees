@@ -149,15 +149,20 @@ class QuadTree {
   };
 }
 
-let canvas: any = document.getElementById("QuadTreesCanvas");
-let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
+let canvas: HTMLCanvasElement = document.getElementById("QuadTreesCanvas") as HTMLCanvasElement;
+let ctx: CanvasRenderingContext2D = canvas.getContext("2d")!;
 let highlightRect: [number, number, number, number] = [0, 0, 0, 0];
 let pointsToHighlight: Point[] = [];
 
-canvas.width = window.innerWidth * devicePixelRatio;
-canvas.height = window.innerHeight * devicePixelRatio;
-canvas.style.width = window.innerWidth + "px";
-canvas.style.height = window.innerHeight + "px";
+const resizeCanvas = () => {
+  canvas.width = window.innerWidth * devicePixelRatio;
+  canvas.height = window.innerHeight * devicePixelRatio;
+  canvas.style.width = window.innerWidth + "px";
+  canvas.style.height = window.innerHeight + "px";
+};
+
+resizeCanvas();
+
 const myTree: QuadTree = new QuadTree(
   0,
   0,
@@ -165,6 +170,7 @@ const myTree: QuadTree = new QuadTree(
   Math.max(canvas.width, canvas.height)
 );
 const points: Point[] = [];
+
 const drawTree = (tree: QuadTree): void => {
   ctx.beginPath();
   ctx.strokeStyle = "white";
@@ -179,6 +185,7 @@ const drawTree = (tree: QuadTree): void => {
 };
 
 const renderStuff = () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before each render
   drawTree(myTree);
   ctx.beginPath();
   ctx.strokeStyle = "green";
@@ -186,7 +193,7 @@ const renderStuff = () => {
   ctx.rect(...highlightRect);
   ctx.stroke();
   ctx.closePath();
-  ctx.lineWidth = 0.1;
+  ctx.lineWidth = 0.4;
   points.forEach((pointCurrent) => {
     ctx.strokeStyle = pointCurrent.fillStyle;
     ctx.fillStyle = pointCurrent.fillStyle;
@@ -209,7 +216,7 @@ const getMousePos = (canvas: HTMLCanvasElement, event: MouseEvent) => {
   };
 };
 
-canvas.addEventListener("mousemove", (event: MouseEvent) => {
+canvas.addEventListener("mousemove", (event) => {
   if ((performance.now() - startTime) / 1000 < 4) {
     const { x, y } = getMousePos(canvas, event);
     const point = new Point(x, y);
@@ -219,18 +226,25 @@ canvas.addEventListener("mousemove", (event: MouseEvent) => {
   renderStuff();
 });
 
-addEventListener("click", (event) => {
+canvas.addEventListener("click", (event) => {
   pointsToHighlight = [];
   const width = 200;
   const height = 100;
-  const x = event.offsetX - width / 2;
-  const y = event.offsetY - height / 2;
+  const { x, y } = getMousePos(canvas, event);
+  const rectX = x - width / 2;
+  const rectY = y - height / 2;
 
-  highlightRect = [x, y, width, height];
-  pointsToHighlight = myTree.queryTree(new Rect(x, x + width, y, y + height));
+  highlightRect = [rectX, rectY, width, height];
+  pointsToHighlight = myTree.queryTree(new Rect(rectX, rectX + width, rectY, rectY + height));
   pointsToHighlight.forEach((point) => {
     point.fillStyle = "green";
   });
 
+  renderStuff();
+});
+
+// Ensure canvas resizes with the window
+window.addEventListener("resize", () => {
+  resizeCanvas();
   renderStuff();
 });

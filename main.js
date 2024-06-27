@@ -107,10 +107,13 @@ let canvas = document.getElementById("QuadTreesCanvas");
 let ctx = canvas.getContext("2d");
 let highlightRect = [0, 0, 0, 0];
 let pointsToHighlight = [];
-canvas.width = window.innerWidth * devicePixelRatio;
-canvas.height = window.innerHeight * devicePixelRatio;
-canvas.style.width = window.innerWidth + "px";
-canvas.style.height = window.innerHeight + "px";
+const resizeCanvas = () => {
+    canvas.width = window.innerWidth * devicePixelRatio;
+    canvas.height = window.innerHeight * devicePixelRatio;
+    canvas.style.width = window.innerWidth + "px";
+    canvas.style.height = window.innerHeight + "px";
+};
+resizeCanvas();
 const myTree = new QuadTree(0, 0, Math.max(canvas.width, canvas.height), Math.max(canvas.width, canvas.height));
 const points = [];
 const drawTree = (tree) => {
@@ -125,6 +128,7 @@ const drawTree = (tree) => {
     }
 };
 const renderStuff = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before each render
     drawTree(myTree);
     ctx.beginPath();
     ctx.strokeStyle = "green";
@@ -132,7 +136,7 @@ const renderStuff = () => {
     ctx.rect(...highlightRect);
     ctx.stroke();
     ctx.closePath();
-    ctx.lineWidth = 0.1;
+    ctx.lineWidth = 0.4;
     points.forEach((pointCurrent) => {
         ctx.strokeStyle = pointCurrent.fillStyle;
         ctx.fillStyle = pointCurrent.fillStyle;
@@ -160,16 +164,22 @@ canvas.addEventListener("mousemove", (event) => {
     }
     renderStuff();
 });
-addEventListener("click", (event) => {
+canvas.addEventListener("click", (event) => {
     pointsToHighlight = [];
     const width = 200;
     const height = 100;
-    const x = event.offsetX - width / 2;
-    const y = event.offsetY - height / 2;
-    highlightRect = [x, y, width, height];
-    pointsToHighlight = myTree.queryTree(new Rect(x, x + width, y, y + height));
+    const { x, y } = getMousePos(canvas, event);
+    const rectX = x - width / 2;
+    const rectY = y - height / 2;
+    highlightRect = [rectX, rectY, width, height];
+    pointsToHighlight = myTree.queryTree(new Rect(rectX, rectX + width, rectY, rectY + height));
     pointsToHighlight.forEach((point) => {
         point.fillStyle = "green";
     });
+    renderStuff();
+});
+// Ensure canvas resizes with the window
+window.addEventListener("resize", () => {
+    resizeCanvas();
     renderStuff();
 });
