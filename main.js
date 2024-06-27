@@ -9,7 +9,7 @@ class Point {
 class Rect {
     constructor(x1, x2, y1, y2) {
         this.doesContain = (x, y) => {
-            return ((x > this.x1) && (x < this.x2) && (y > this.y1) && (y < this.y2));
+            return x > this.x1 && x < this.x2 && y > this.y1 && y < this.y2;
         };
         this.x1 = x1;
         this.x2 = x2;
@@ -72,7 +72,7 @@ class QuadTree {
             let x2 = this.x + this.width;
             let y1 = this.y;
             let y2 = this.y + this.height;
-            return ((x2 >= r.x1) && (x1 <= r.x2) && (y1 <= r.y2) && (y2 >= r.y1));
+            return x2 >= r.x1 && x1 <= r.x2 && y1 <= r.y2 && y2 >= r.y1;
         };
         this.queryTree = (rangeVal) => {
             if (!this.doesIntersect(rangeVal)) {
@@ -144,8 +144,8 @@ const renderStuff = () => {
 const startTime = performance.now();
 addEventListener("mousemove", (event) => {
     if ((performance.now() - startTime) / 1000 < 4) {
-        const x = event.clientX;
-        const y = event.clientY;
+        const x = event.layerX;
+        const y = event.layerY;
         const point = new Point(x, y);
         points.push(point);
         myTree.addPoint(point);
@@ -156,8 +156,8 @@ addEventListener("click", (event) => {
     pointsToHighlight = [];
     const width = 200;
     const height = 100;
-    const x = event.clientX - width / 2;
-    const y = event.clientY - height / 2;
+    const x = event.layerX - width / 2;
+    const y = event.layerY - height / 2;
     highlightRect = [x, y, width, height];
     pointsToHighlight = myTree.queryTree(new Rect(x, x + width, y, y + height));
     pointsToHighlight.forEach((point) => {

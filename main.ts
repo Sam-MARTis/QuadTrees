@@ -1,32 +1,31 @@
 class Point {
   x: number;
   y: number;
-  fillStyle: string
+  fillStyle: string;
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
-    this.fillStyle = "white"
+    this.fillStyle = "white";
   }
 }
-class Rect{
-  x1: number
-  y1: number
-  x2:number
-  y2:number
-  constructor(x1:number, x2:number, y1:number, y2:number){
-    this.x1=x1;
-    this.x2=x2;
-    this.y1=y1;
-    this.y2=y2;
-    if(this.x2<this.x1 || this.y2<this.y1){
+class Rect {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  constructor(x1: number, x2: number, y1: number, y2: number) {
+    this.x1 = x1;
+    this.x2 = x2;
+    this.y1 = y1;
+    this.y2 = y2;
+    if (this.x2 < this.x1 || this.y2 < this.y1) {
       console.error("Wrong rectangle dimensions given");
-      return
+      return;
     }
   }
-  doesContain = (x:number, y:number): boolean => {
-    return ((x>this.x1) && (x<this.x2 )&& (y>this.y1) && (y<this.y2));
-  }
-
+  doesContain = (x: number, y: number): boolean => {
+    return x > this.x1 && x < this.x2 && y > this.y1 && y < this.y2;
+  };
 }
 class QuadTree {
   x: number;
@@ -118,7 +117,6 @@ class QuadTree {
         }
       }
       throw new Error("Point not in sub trees");
-
     }
   };
 
@@ -126,39 +124,35 @@ class QuadTree {
     let x1 = this.x;
     let x2 = this.x + this.width;
     let y1 = this.y;
-    let y2 = this.y + this.height
-    return ((x2>=r.x1) && (x1 <= r.x2) && (y1 <= r.y2) && (y2 >= r.y1));
-  }
+    let y2 = this.y + this.height;
+    return x2 >= r.x1 && x1 <= r.x2 && y1 <= r.y2 && y2 >= r.y1;
+  };
 
-  queryTree = (rangeVal: Rect): Point[]=> {
-    if(!this.doesIntersect(rangeVal)){
-      return []
+  queryTree = (rangeVal: Rect): Point[] => {
+    if (!this.doesIntersect(rangeVal)) {
+      return [];
     }
-    let pointsToReturn: Point[] = []
-    if(!this.divided){
-      
-      this.points.forEach((point)=> {
-        if(rangeVal.doesContain(point.x, point.y)){
+    let pointsToReturn: Point[] = [];
+    if (!this.divided) {
+      this.points.forEach((point) => {
+        if (rangeVal.doesContain(point.x, point.y)) {
           pointsToReturn.push(point);
         }
-      })
+      });
       return pointsToReturn;
     }
-    this.subTrees.forEach((subtree) =>{
+    this.subTrees.forEach((subtree) => {
       pointsToReturn.push(...subtree.queryTree(rangeVal));
-    })
-    
-    return pointsToReturn
-  }
+    });
 
-
+    return pointsToReturn;
+  };
 }
 
 let canvas: any = document.getElementById("QuadTreesCanvas");
 let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
-let highlightRect: [number, number, number, number] = [0,0,0,0];
+let highlightRect: [number, number, number, number] = [0, 0, 0, 0];
 let pointsToHighlight: Point[] = [];
-
 
 canvas.width = window.innerWidth * devicePixelRatio;
 canvas.height = window.innerHeight * devicePixelRatio;
@@ -188,7 +182,7 @@ const renderStuff = () => {
   drawTree(myTree);
   ctx.beginPath();
   ctx.strokeStyle = "green";
-  ctx.lineWidth = 1
+  ctx.lineWidth = 1;
   ctx.rect(...highlightRect);
   ctx.stroke();
   ctx.closePath();
@@ -200,41 +194,32 @@ const renderStuff = () => {
     ctx.arc(pointCurrent.x, pointCurrent.y, 1, 0, 3.1416);
     ctx.fill();
   });
-}
+};
 
-const startTime = performance.now()
+const startTime = performance.now();
 addEventListener("mousemove", (event) => {
-  if((performance.now()-startTime)/1000 < 4){
-  const x = event.clientX;
-  const y = event.clientY;
-  const point = new Point(x, y);
-  points.push(point);
-  myTree.addPoint(point);
+  if ((performance.now() - startTime) / 1000 < 4) {
+    const x = event.layerX;
+    const y = event.layerY;
+    const point = new Point(x, y);
+    points.push(point);
+    myTree.addPoint(point);
   }
   renderStuff();
-  
 });
 
-
-
-addEventListener("click", (event)=>{
+addEventListener("click", (event) => {
   pointsToHighlight = [];
   const width = 200;
   const height = 100;
-  const x = event.clientX - width/2;
-  const y = event.clientY - height/2;
+  const x = event.layerX - width / 2;
+  const y = event.layerY - height / 2;
 
   highlightRect = [x, y, width, height];
-  pointsToHighlight = myTree.queryTree(new Rect(x, x+width, y, y+height));
-  pointsToHighlight.forEach((point)=> {
+  pointsToHighlight = myTree.queryTree(new Rect(x, x + width, y, y + height));
+  pointsToHighlight.forEach((point) => {
     point.fillStyle = "green";
-  })
-
+  });
 
   renderStuff();
-
-
-  
-})
-
-
+});
