@@ -199,8 +199,8 @@ const renderStuff = () => {
 const startTime = performance.now();
 addEventListener("mousemove", (event) => {
   if ((performance.now() - startTime) / 1000 < 4) {
-    const x = event.layerX;
-    const y = event.layerY;
+    const x = event.offsetX;
+    const y = event.offsetY;
     const point = new Point(x, y);
     points.push(point);
     myTree.addPoint(point);
@@ -212,8 +212,8 @@ addEventListener("click", (event) => {
   pointsToHighlight = [];
   const width = 200;
   const height = 100;
-  const x = event.layerX - width / 2;
-  const y = event.layerY - height / 2;
+  const x = event.offsetX - width / 2;
+  const y = event.offsetY - height / 2;
 
   highlightRect = [x, y, width, height];
   pointsToHighlight = myTree.queryTree(new Rect(x, x + width, y, y + height));
