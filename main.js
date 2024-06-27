@@ -73,6 +73,13 @@ class QuadTree {
                 return false;
             }
         };
+        this.doesIntersect = (r) => {
+            let x1 = this.x;
+            let x2 = this.x + this.width;
+            let y1 = this.y;
+            let y2 = this.y + this.height;
+            return ((x2 >= r.x1) && (x1 <= r.x2) && (y1 <= r.y2) && (y2 >= r.y1));
+        };
         this.x = x;
         this.y = y;
         this.width = width;
