@@ -197,10 +197,21 @@ const renderStuff = () => {
 };
 
 const startTime = performance.now();
-addEventListener("mousemove", (event) => {
+
+const getMousePos = (canvas: HTMLCanvasElement, event: MouseEvent) => {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+  return {
+    x: (event.clientX - rect.left) * scaleX,
+    y: (event.clientY - rect.top) * scaleY,
+  };
+};
+
+canvas.addEventListener("mousemove", (event: MouseEvent) => {
   if ((performance.now() - startTime) / 1000 < 4) {
-    const x = event.offsetX;
-    const y = event.offsetY;
+    const { x, y } = getMousePos(canvas, event);
     const point = new Point(x, y);
     points.push(point);
     myTree.addPoint(point);
