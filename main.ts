@@ -204,17 +204,8 @@ const drawTree = (tree: QuadTree): void => {
     });
   }
 };
-const startTime = performance.now()
-addEventListener("mousemove", (event) => {
-  if((performance.now()-startTime)/1000 < 4){
-  console.log(event);
-  const x = event.clientX;
-  const y = event.clientY;
-  const point = new Point(x, y);
-  points.push(point);
-  myTree.addPoint(point);
-  }
 
+const renderStuff = () => {
   drawTree(myTree);
   ctx.beginPath();
   ctx.strokeStyle = "green";
@@ -230,7 +221,23 @@ addEventListener("mousemove", (event) => {
     ctx.arc(pointCurrent.x, pointCurrent.y, 1, 0, 3.1416);
     ctx.fill();
   });
+}
+
+const startTime = performance.now()
+addEventListener("mousemove", (event) => {
+  if((performance.now()-startTime)/1000 < 4){
+  console.log(event);
+  const x = event.clientX;
+  const y = event.clientY;
+  const point = new Point(x, y);
+  points.push(point);
+  myTree.addPoint(point);
+  }
+  renderStuff();
+  
 });
+
+
 
 addEventListener("click", (event)=>{
   pointsToHighlight = [];
@@ -246,5 +253,10 @@ addEventListener("click", (event)=>{
   })
 
 
+  renderStuff();
+
+
   
 })
+
+
